@@ -2,19 +2,23 @@ name: Run tests
 on:
   push:
     branches:
+      - pr_target_test
       - master
       - '[45].*.z'
-  pull_request:
+  pull_request_target:
+    types: [labeled]
     branches:
+      - pr_target_test
       - master
       - '[45].*.z'
 jobs:
   run-tests:
     runs-on: ${{ matrix.os }}
+    if: contains(github.event.pull_request.labels.*.name, 'safe') || github.event_name == 'push'
     name: Run tests with Python ${{ matrix.python-version }} on ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ 2.7, 3.9 ]
+        python-version: [ '3.6', '3.10' ]
         os: [ ubuntu-latest, windows-latest ]
       fail-fast: false
     steps:
@@ -27,8 +31,17 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '8'
-      - name: Checkout to code
+          
+      - name: Checkout code
+        if: github.event_name == 'push'
         uses: actions/checkout@v2
+
+      - name: Checkout PR code
+        if: github.event_name == 'pull_request_target'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          
       - name: Install dependencies
         run: |
           pip install -r requirements-test.txt
@@ -45,19 +58,30 @@ jobs:
             rc_stderr.log
             rc_stdout.log
       - name: Publish results to Codecov
+        if: ${{ matrix.python-version == '3.10' && matrix.os == 'ubuntu-latest' }}
         uses: codecov/codecov-action@v1
         with:
           files: ./coverage.xml
   run-linter:
     runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'safe') || github.event_name == 'push'
     name: Run black to check the code style
     steps:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
-      - name: Checkout to code
+          python-version: '3.10'
+          
+      - name: Checkout code
+        if: github.event_name == 'push'
         uses: actions/checkout@v2
+
+      - name: Checkout PR code
+        if: github.event_name == 'pull_request_target'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          
       - name: Install dependencies
         run: |
           pip install -r requirements-dev.txt
@@ -66,14 +90,24 @@ jobs:
           black --check --config black.toml .
   generate_docs:
     runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'safe') || github.event_name == 'push'
     name: Generate documentation
     steps:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
-      - name: Checkout to code
+          python-version: '3.10'
+          
+      - name: Checkout code
+        if: github.event_name == 'push'
         uses: actions/checkout@v2
+
+      - name: Checkout PR code
+        if: github.event_name == 'pull_request_target'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          
       - name: Install dependencies
         run: |
           pip install -r requirements-dev.txt

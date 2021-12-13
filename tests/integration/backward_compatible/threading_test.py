@@ -3,12 +3,9 @@ import threading
 from random import choice
 from unittest import skip
 
-from nose.plugins.attrib import attr
 
 from tests.base import SingleMemberTestCase
 from tests.util import random_string
-from hazelcast import six
-from hazelcast.six.moves import range
 
 
 class ThreadingTest(SingleMemberTestCase):
@@ -20,7 +17,6 @@ class ThreadingTest(SingleMemberTestCase):
     def setUp(self):
         self.map = self.client.get_map(random_string()).blocking()
 
-    @attr("stress_test")
     @skip
     def test_operation_from_multiple_threads(self):
         num_threads = 4
@@ -59,4 +55,4 @@ class ThreadingTest(SingleMemberTestCase):
         if exceptions:
             name, exception = exceptions[0]
             self.logger.exception("Exception in thread %s", name)
-            six.reraise(exception[0].__class__, exception[0], exception[2])
+            raise exception

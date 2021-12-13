@@ -1,18 +1,18 @@
+import pickle
 import unittest
 
 from hazelcast.config import _Config
 from hazelcast.serialization.api import StreamSerializer
 from hazelcast.serialization.service import SerializationServiceV1
-from hazelcast.six.moves import cPickle
 
 
-class TestGlobalSerializer(StreamSerializer):
+class GlobalSerializer(StreamSerializer):
     def __init__(self):
-        super(TestGlobalSerializer, self).__init__()
+        super(GlobalSerializer, self).__init__()
 
     def read(self, inp):
         string = inp.read_string()
-        obj = cPickle.loads(string.encode())
+        obj = pickle.loads(string.encode())
         try:
             obj.source = "GLOBAL"
         except AttributeError:
@@ -20,7 +20,7 @@ class TestGlobalSerializer(StreamSerializer):
         return obj
 
     def write(self, out, obj):
-        out.write_string(cPickle.dumps(obj, 0).decode("utf-8"))
+        out.write_string(pickle.dumps(obj, 0).decode("utf-8"))
 
     def get_type_id(self):
         return 10000
@@ -86,7 +86,7 @@ class TheOtherCustomSerializer(StreamSerializer):
 class CustomSerializationTestCase(unittest.TestCase):
     def test_global_encode_decode(self):
         config = _Config()
-        config.global_serializer = TestGlobalSerializer
+        config.global_serializer = GlobalSerializer
 
         service = SerializationServiceV1(config)
         obj = CustomClass("uid", "some name", "description text")
@@ -111,7 +111,7 @@ class CustomSerializationTestCase(unittest.TestCase):
     def test_global_custom_serializer(self):
         config = _Config()
         config.custom_serializers = {CustomClass: CustomSerializer}
-        config.global_serializer = TestGlobalSerializer
+        config.global_serializer = GlobalSerializer
 
         service = SerializationServiceV1(config)
         obj = CustomClass("uid", "some name", "description text")

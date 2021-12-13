@@ -19,7 +19,7 @@
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: '3.10'
 
       - name: Install JDK
         uses: actions/setup-java@v2
@@ -36,15 +36,25 @@
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          
+      - name: Debugging with tmate
+        uses: mxschmitt/action-tmate@v3.8
 
       - name: Install dependencies
-        run : |
-            python -m pip install --upgrade pip
-            pip install -r requirements-test.txt
+        run: |
+          pip install -r requirements-test.txt
       - name: Run tests
         env:
           HAZELCAST_ENTERPRISE_KEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
-        run : python run_tests.py
+        run: python run_tests.py
+      - name: Upload remote controller logs on test failure
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: rc-logs
+          path: |
+            rc_stderr.log
+            rc_stdout.log
 
       - name: Publish to Codecov 
         uses: codecov/codecov-action@v1

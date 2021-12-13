@@ -2,11 +2,12 @@ import os
 import tempfile
 import unittest
 
-from hazelcast import HazelcastClient, six
+import pytest
+
+from hazelcast import HazelcastClient
 from hazelcast.util import RandomLB, RoundRobinLB
 from tests.base import HazelcastTestCase, SingleMemberTestCase
 from tests.util import (
-    set_attr,
     random_string,
     event_collector,
     skip_if_client_version_older_than,
@@ -161,8 +162,8 @@ class LoadBalancersWithRealClusterTest(HazelcastTestCase):
         lb = client._load_balancer
         self.assertTrue(isinstance(lb, RandomLB))
 
-        six.assertCountEqual(
-            self, self.addresses, list(map(lambda m: m.address, self._get_members_from_lb(lb)))
+        self.assertCountEqual(
+            self.addresses, list(map(lambda m: m.address, self._get_members_from_lb(lb)))
         )
         for _ in range(10):
             self.assertTrue(lb.next().address in self.addresses)
@@ -176,8 +177,8 @@ class LoadBalancersWithRealClusterTest(HazelcastTestCase):
         lb = client._load_balancer
         self.assertTrue(isinstance(lb, RoundRobinLB))
 
-        six.assertCountEqual(
-            self, self.addresses, list(map(lambda m: m.address, self._get_members_from_lb(lb)))
+        self.assertCountEqual(
+            self.addresses, list(map(lambda m: m.address, self._get_members_from_lb(lb)))
         )
         for i in range(10):
             self.assertEqual(self.addresses[i % len(self.addresses)], lb.next().address)
@@ -195,7 +196,7 @@ class LoadBalancersWithRealClusterTest(HazelcastTestCase):
         return members.members
 
 
-@set_attr(enterprise=True)
+@pytest.mark.enterprise
 class HotRestartEventTest(HazelcastTestCase):
     @classmethod
     def setUpClass(cls):
