@@ -32,7 +32,7 @@ jobs:
   run-tests:
     runs-on: ${{ matrix.os }}
     needs: [test_composite_action]
-    if: contains(github.event.pull_request.labels.*.name, 'pr_builder') || ${{ needs.test_composite_action.outputs.check-result == 'true' }}
+    if: contains(github.event.pull_request.labels.*.name, 'pr_builder') || "contains(needs.test_composite_action.outputs.check-result, 'true')"
     name: Run tests with Python ${{ matrix.python-version }} on ${{ matrix.os }}
     strategy:
       matrix:
