@@ -72,6 +72,9 @@ jobs:
           git fetch origin pull/${{github.event.inputs.pr_number }}/head:pr_head
           git checkout pr_head
           
+      - name: Debugging with tmate
+        uses: mxschmitt/action-tmate@v3.11
+      
       - name: Install dependencies
         run: |
           pip install -r requirements-test.txt
