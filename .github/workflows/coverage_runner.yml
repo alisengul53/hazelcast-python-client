@@ -10,10 +10,12 @@ on:
     branches:
       - master
       - '[45].*.z'
+      - new_coverage_yaml_test_branch
   pull_request_target:
     branches:
       - master
       - '[45].*.z'
+      - new_coverage_yaml_test_branch
     types:
       [opened]
       
