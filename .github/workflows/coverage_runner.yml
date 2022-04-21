@@ -10,10 +10,12 @@ on:
     branches:
       - master
       - '[45].*.z'
+      - merge_commit_sha_base_branch
   pull_request_target:
     branches:
       - master
       - '[45].*.z'
+      - merge_commit_sha_base_branch
     types:
       [opened]
       
@@ -59,7 +61,8 @@ jobs:
         if: github.event_name == 'pull_request_target'
         uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          
           
       - name: Checkout repository for push event and PR coming from community
         if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
@@ -72,6 +75,9 @@ jobs:
           git fetch origin pull/${{github.event.inputs.pr_number }}/head:pr_head
           git checkout pr_head
           
+      - name: Debugging with tmate
+        uses: mxschmitt/action-tmate@v3.11
+        
       - name: Install dependencies
         run: |
           pip install -r requirements-test.txt
