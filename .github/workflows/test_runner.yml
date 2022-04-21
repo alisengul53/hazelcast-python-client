@@ -4,18 +4,22 @@ on:
     branches:
       - master
       - '[45].*.z'
+      - pull_request_test_base_branch
+      - pull_request_test_PR_branch
   pull_request:
     branches:
       - master
       - '[45].*.z'
+      - pull_request_test_base_branch
+      - pull_request_test_PR_branch
 jobs:
   run-tests:
     runs-on: ${{ matrix.os }}
     name: Run tests with Python ${{ matrix.python-version }} on ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ '3.6', '3.10' ]
-        os: [ ubuntu-latest, windows-latest ]
+        python-version: [ '3.6' ]
+        os: [ ubuntu-latest ]
       fail-fast: false
     steps:
       - name: Setup Python
@@ -29,6 +33,10 @@ jobs:
           java-version: '8'
       - name: Checkout to code
         uses: actions/checkout@v2
+        
+      - name: Debugging with tmate
+        uses: mxschmitt/action-tmate@v3.11
+        
       - name: Install dependencies
         run: |
           pip install -r requirements-test.txt
