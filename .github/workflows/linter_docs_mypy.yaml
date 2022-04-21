@@ -4,10 +4,12 @@ on:
     branches:
       - master
       - '[45].*.z'
+      - another_test_branch_for_workflow
   pull_request:
     branches:
       - master
       - '[45].*.z'
+      - another_test_branch_for_workflow
 jobs:
   run-linter:
     runs-on: ubuntu-latest
