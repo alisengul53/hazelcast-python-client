@@ -10,10 +10,12 @@ on:
     branches:
       - master
       - '[45].*.z'
+      - pr_comment_test_base_branch
   pull_request_target:
     branches:
       - master
       - '[45].*.z'
+      - pr_comment_test_base_branch
       
 jobs:
   check_for_membership:
